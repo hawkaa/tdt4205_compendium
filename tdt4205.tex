@@ -638,6 +638,33 @@ We can use the abstracted methods to create an iterative algorithm, much like th
 To describe the solution obtained by the iterative algorithm, first describe the ideal solution.
 % subsubsection Meaning of a Data-Flow Solution (end)
 
+\paragraph{The Ideal Solution} % (fold)
+\label{par:The Ideal Solution}
+Uhm... We claim that:
+\begin{itemize}
+	\item Any answer that is greater than ideal is incorrect. This is because if you get a greater solution, a path has been ignored, and we cannot be sure that there is not some effect along that path to invalidate ony program improvement we might make based on the greater solution.
+	\item Any value smaller than or equal to the ideal is conservative, i.e., safe. This is because any solution less than ideal include paths that does not exist is a flow graph, or exists but the program can never follow.
+\end{itemize}
+% paragraph The Ideal Solution (end)
+
+\paragraph{The Meet-Over-Paths Solution} % (fold)
+\label{par:The Meet-Over-Paths Solution}
+Finding all paths is an undecidable problem, therefore we must approximate. We assume that every path in the flow graph can be taken. The paths considered using MOP is a superset of all the paths that can possibly be executed. We can therefore conclude:
+\begin{equation}
+	MOP \le IDEAL
+\end{equation}
+which means MOP is a conservative solution.
+% paragraph The Meet-Over-Paths Solution (end)
+
+\paragraph{The Maximum Fixedpoint Versus the MOP Solution} % (fold)
+\label{par:The Maximum Fixedpoint Versus the MOP Solution}
+If the graph contains cycles, the MOP solution is still unbounded. The iterative algorithm does not first find all the paths leading to a basic block before applying the meet operator. Rather
+\begin{enumerate}
+	\item The algorithms visits basic blocks, not necessarily in the order of execution.
+	\item At each point, the algorithm applies the meet operator to the values obtained so far. Some of the values might be artificially made in the initialization process, and not represent the path.
+\end{enumerate}
+So what is the relationship between the MOP solution and the MFP produced by the algorithm? The answer will be the same if the framework is distributive. If it is monotone, we have $IN[B] \le MOP[B]$. This happens because we apply the meet operator early.
+% paragraph The Maximum Fixedpoint Versus the MOP Solution (end)
 % subsection Foundations of Data-Flow Analysis (end)
 
 % subsection Introduction to Data-Flow Analysis (end)
