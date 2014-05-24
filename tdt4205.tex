@@ -72,6 +72,32 @@ White space and comments can be removed by the lexer, so the parser wont have to
 % subsubsection Removal of White Space and Comments (end)
 % subsection Lexical Analysis (end)
 
+\subsection{Symbol Tables} % (fold)
+\label{sub:Symbol Tables}
+\emph{Symbol tables} are data structures that are used by compilers to hold information about source-program constructs. The information is collected incrementally by the analysis phase of a compiler and used in the synthesis part to generate code. Entities in the symbol table contain information about an identifier such as its character string (or lexeme), dits type, its position in storage and any other relevant information. Symbol tables typically need to support multiple declarations of the same identifier within a program. We set up symbol tables for each scope in the program.
+
+\subsubsection{Symbol Table Per Scope} % (fold)
+\label{ssub:Symbol Table Per Scope}
+The term "scope of identifier $x$" really refers to the scope of a particular decalarion of $x$. Scopes are important, because common names have multiple uses. The \emph{most closely nested} rule for blocks says that an identifier $x$ is in the scope of the most-closely declaration of $x$. This behavior can be implementet by chaining symbol tables. It can be implemented with:
+\begin{itemize}
+	\item \emph{Create a new symbol table}. Create new table with another symbol table as parent.
+	\item \emph{Put}. Will put key-value pair into current symbol table.
+	\item \emph{Get}. Will try to find the symbol, by scanning itself or recursively scan its ancestors.
+\end{itemize}
+
+\subsubsection{The Use of Symbol Tables} % (fold)
+\label{ssub:The Use of Symbol Tables}
+The role of a symbol table is to pass information from declaration to uses.
+% subsubsection The Use of Symbol Tables (end)
+
+\subsubsection{subsubsection name} % (fold)
+\label{ssub:subsubsection name}
+
+% subsubsection subsubsection name (end)
+
+% subsubsection Symbol Table Per Scope (end)
+% subsection Symbol Tables (end)
+
 \subsection{Intermediate Code Generation} % (fold)
 \label{sub:Intermediate Code Generation}
 
