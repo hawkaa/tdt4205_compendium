@@ -3,6 +3,7 @@
 % Packages
 \usepackage{fullpage}
 \newcommand{\ta}{$\to$~}
+\newcommand{\meet}{$\wedge$~}
 
 \begin{document}
 \section{Introduction} % (fold)
@@ -90,10 +91,20 @@ The term "scope of identifier $x$" really refers to the scope of a particular de
 The role of a symbol table is to pass information from declaration to uses.
 % subsubsection The Use of Symbol Tables (end)
 
-\subsubsection{subsubsection name} % (fold)
-\label{ssub:subsubsection name}
+\subsubsection{Data structures used for symbol tables} % (fold)
+\label{ssub:datastructures for symboltables}
 
-% subsubsection subsubsection name (end)
+\paragraph{Array Implementation}
+This implementation gives one entry per symbol, and the array must be scanned linearly. This is not ideal because of the linear lookup procedure, and because the table has a fixed size (which must be known beforehand)
+
+\paragraph{List Implementation}
+One structure per entry with pointer to the next entry. This can grow dynamically. This has a slow look-up speed, as half of the elements on average has to be checked.
+
+\paragraph{Hash Table Implementation}
+Uses an hash table that maps a string identifier to a bucket. This gives constant look-up time. I am not familiar with any disadvantages, as long as you have a good hash function that distributes the entries evenly.
+
+
+% subsubsection subsubsection  (end)
 
 % subsubsection Symbol Table Per Scope (end)
 % subsection Symbol Tables (end)
@@ -184,7 +195,22 @@ LR-parsers are table driven. Attractive because:
 \end{itemize}
 Typical drawback is that it is too much work to construct an LR parser by hand for a typical language grammar.
 % subsubsection Why LR Parsers? (end)
+
+\subsubsection{Viable Prefixes} % (fold)
+\label{ssub:Viable Prefixes}
+Why can LR(0) automata be used to make shift-reduce decisions? Not all prefixes of right-sentential forms can appear on the stack. The parser must make sure to reduce before putting another symbol on stack (in some occasions). The prefixes of right sentinental forms that can appear on the stack of a shift-reduce parser are called \emph{viable prefixes}. They are defined as follows: A viable prefix is a prifx of a right-sentential form that does not contisue past the right end of the rightmost handle of that sentential form. SLR parsing is pased on the fact that the LR(0) automata recognize viable prefixes.
+% subsubsection Viable Prefixes (end)
+
 % subsection Introduction to LR Parsing: Simple LR (end)
+
+\subsection{More Powerful LR Parsers} % (fold)
+\label{sub:More Powerful LR Parsers}
+This section extends SLR by utilizing lookahead symbols. Two models:
+\begin{enumerate}
+	\item The \emph{canonical-LR} or just \emph{LR} method, which makes full use of lookahead. This method uses a large set of items (LR(1) items)
+	\item The \emph{Lookahead-LR} or LALR, based on LR(0) items. It introduces lookaheads into the LR(0) itemns, and thereby handle more grammars, but keeping the table no bigger than the SLR method.
+\end{enumerate}
+% subsection More Powerful LR Parsers (end)
 
 \subsection{Using Ambigous Grammars} % (fold)
 \label{sub:Using Ambigous Grammars}
@@ -229,6 +255,11 @@ Some grammars might produce conflicts, and it will report so. Unless instructed 
 \end{itemize}
 These rules might not be what the compiler writer wants, so we can chose associativity (\emph{\%left '+' '-'}) or force it to be nonnassociative. You can also force precedence.
 % subsubsection Using Yacc with Ambigous Grammars (end)
+
+\section{Syntax-Directed Translation} % (fold)
+\label{sec:Syntax-Directed Translation}
+
+% section Syntax-Directed Translation (end)
 
 \section{Intermediate-Code Generation} % (fold)
 \label{sec:Intermediate-Code Generation}
@@ -509,6 +540,105 @@ Must be done in correct order. Data-flow can be done the same way as reaching de
 \\
 In reaching definitions, we start with a set too small and work up, in available expression, we work with a set too large and work down. We start with the assumption that everything is available everywhere, to keep the optimization conservative.
 % subsubsection Availabel Expressions (end)
+
+\subsection{Foundations of Data-Flow Analysis} % (fold)
+\label{sub:Foundations of Data-Flow Analysis}
+After showing the use of data-flow analysis, we present the schemas abstractly. Will cover
+\begin{enumerate}
+	\item Under what circumstances is the iterative algorithm used in data-flow analysis correct?
+	\item How precise is the solution obtained by the iterative algorithm?
+	\item Will the algorithm converge?
+	\item What is the meaning of the solution?
+\end{enumerate}
+We present a general approach. The framework helps us identify reusable components, and therefore programming errors will most likely reduce. A \emph{data-flow analysis framework (D, V, \meet, F)} consists of
+\begin{enumerate}
+	\item A direction of the data flow D (forward or backward).
+	\item A semilattice, which includes a domain of values V and a meet-operator \meet.
+	\item A family F of transfer functions from $V$ to $V$. Must contain boundary conditions (transfer functions for ENTRY and EXIT).
+\end{enumerate}
+
+\subsubsection{Semilattices} % (fold)
+\label{ssub:Semilattices}
+A semilattice is a set of values $V$ and a binary meet operator \meet such for all $x$, $y$, $z$:
+\begin{enumerate}
+	\item $x \wedge x = x$ (idempotent)
+	\item $x \wedge y = y \wedge x$ (commutative)
+	\item $x \wedge (y \wedge z) = (x \wedge y) \wedge z$ (associative)
+\end{enumerate}
+You also need a \emph{top element}, detoned $\top$ such that $\top \wedge x = x$. Optionally, you may have a \emph{bottom element} detoned $\bot$ such that $\bot \wedge x = \bot$.
+
+\paragraph{Partial orders} % (fold)
+\label{par:Partial orders}
+We define a partial operator on the values, with a relation $\le$ which is \emph{reflexive}, \emph{antisymmetric} and \emph{transitive}.
+% paragraph Partial orders (end)
+
+\paragraph{The partial Order for a Semilattice} % (fold)
+\label{par:The partial Order for a Semilattice}
+For all $x$ and $y$ in $V$, we define:
+\begin{equation}
+	x \le y \mbox{ if and only if } x \wedge y = x
+\end{equation}
+% paragraph The partial Order for a Semilattice (end)
+
+We might get into situations where \emph{more} elements are considered to be smaller in the partial order. To say that a set is larger in size but smaller in partial order is counterintuitive, but it is an unavoidable consequence of the definitions.
+
+\paragraph{Greates Lower Bound} % (fold)
+\label{par:Greates Lower Bound}
+You can prove that the meet of $x$ and $y$ is their only greatest lower bound.
+% paragraph Greates Lower Bound (end)
+
+\paragraph{Lattice Diagrams} % (fold)
+\label{par:Lattice Diagrams}
+You can draw the domain $V$ as a lattice diagram, starting from the top element. We do not draw all edges, because of transitivity.
+% paragraph Lattice Diagrams (end)
+
+% subsubsection Semilattices (end)
+
+\subsubsection{Transfer Functions} % (fold)
+\label{ssub:Transfer Functions}
+The family of transfer function $F : V \to V$ has following properties:
+\begin{enumerate}
+	\item F has an identity function I, such that $I(x) = x$ for all $x$ in $V$
+	\item $F$ is closed under composition; that is for any two functions $f$ and $g$ in $F$, the function $h$ defined by $h(x) = g(f(x))$ is in $F$.
+\end{enumerate}
+
+\paragraph{Monotone Frameworks} % (fold)
+\label{par:Monotone Frameworks}
+Formally, a data-flow framework is \emph{monotone} if
+\begin{equation}
+	\label{eq:monotone1}
+	\mbox{For all } x \mbox{ and } y \mbox{ in } V \mbox{ and } f \mbox{ in } F, x \le y \mbox{ implies } f(x) \le f(y)
+\end{equation}
+This can be proven.
+% paragraph Monotone Frameworks (end)
+
+\paragraph{Distributive Frameworks} % (fold)
+\label{par:Distributive Frameworks}
+Stronger condition than equation \ref{eq:monotone1}:
+\begin{equation}
+	f(x \wedge y) = f(x) \wedge f(y)
+\end{equation}
+Distributivity implies monotonicity, converse is not true.
+% paragraph Distributive Frameworks (end)
+
+% subsubsection Transfer Functions (end)
+
+\subsubsection{The Iterative Algorithm for General Frameworks} % (fold)
+\label{ssub:The Iterative Algorithm for General Frameworks}
+We can use the abstracted methods to create an iterative algorithm, much like the one used for reaching definitions, available expressions and live-variable analysis. We can prove the following:
+\begin{enumerate}
+	\item If the algorithm converge, the result is a solution to the data-flow equations
+	\item If the framework is monotone, the solution found is the \emph{maximum fixedpoint (MFP)} of the data-flow equations. That is a solution where all $IN[B]$ and $OUT[B]$ is smaller $\ge$ than the values of the MFP.
+	\item If the semilattice of the framework is monotone and of finite height, then the algorithm is guaranteed to converge.
+\end{enumerate}
+% subsubsection The Iterative Algorithm for General Frameworks (end)
+
+\subsubsection{Meaning of a Data-Flow Solution} % (fold)
+\label{ssub:Meaning of a Data-Flow Solution}
+To describe the solution obtained by the iterative algorithm, first describe the ideal solution.
+% subsubsection Meaning of a Data-Flow Solution (end)
+
+% subsection Foundations of Data-Flow Analysis (end)
 
 % subsection Introduction to Data-Flow Analysis (end)
 \subsection{Loops in Flow Graphs} % (fold)
