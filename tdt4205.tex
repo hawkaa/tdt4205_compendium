@@ -97,6 +97,27 @@ This tool allows one to specify a lexical analyzer by specifying regular exrpess
 \end{itemize}
 
 % subsection The Lexical-Analyzer Generator Lex (end)
+
+\subsection{Finite Automata} % (fold)
+\label{sub:Finite Automata}
+Essentially graphs, but:
+\begin{itemize}
+	\item Finite automata are \emph{recognizers}, says yes or no about input
+	\item Two flavours: \emph{Nondeterministic finitie automata} (NFA) (has no edge restrictions, have empty string and multiple edges for same input) and \emph{Deterministic finite automata} (DFA) (exactly one edge for each input).
+\end{itemize}
+Both deterministic and nondeterministic finite automata are capable of recognizing the same languages. In fact these languages are exactly the same langauges, called the \emph{regular languages}, that regular expressions can describe.
+% subsection Finite Automata (end)
+
+\subsection{From Regular Expressions to Automata} % (fold)
+\label{sub:From Regular Expressions to Automata}
+
+\subsubsection{Conversion of an NFA to a DFA} % (fold)
+\label{ssub:Conversion of an NFA to a DFA}
+The general idea is that each state in the DFA reprenents a set of states in the NFA. The number of DFA states is possibly exponential in the number of NFA states, but this behavior is not seen in practice.
+% subsubsection Conversion of an NFA to a DFA (end)
+
+% subsection From Regular Expressions to Automata (end)
+
 % section Lexical Analysis (end)
 
 \section{Syntax Analysis} % (fold)
