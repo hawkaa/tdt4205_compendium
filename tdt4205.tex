@@ -1,0 +1,486 @@
+\documentclass{article}
+
+% Packages
+\usepackage{fullpage}
+\newcommand{\ta}{$\to$~}
+
+\begin{document}
+\section{Introduction} % (fold)
+\label{sec:Introduction}
+
+\subsection{The structure of a compiler} % (fold)
+\label{sub:The structure of a compiler}
+The compiling process has two parts.
+The \emph{analysis} part breaks up the source program and imposes a grammatical structure on them. In addition to this it will alert the user about illegal input (grammar, syntactical etc.) and fill inn the \emph{symbol table}.
+The \emph{synthesis} part constructs the target program from the intermediate representation and the \emph{symbol table}.
+The parts are called \emph{front end} and \emph{back end} respectively.
+% subsection The structure of a compiler (end)
+\subsubsection{Semantic Analysis} % (fold)
+\label{ssub:Semantic Analysis}
+The \emph{semantic analyzer} uses the syntax tree and the information in the symbol table to check the source program for semantic consistency. It also gathers type information and saves it to the symbol table. An important part here is \emph{type checking} where it checks that operators have matching operands. It might also handle \emph{coercions}, i.e. transforming INT + FLOAT to FLOAT + FLOAT.
+% subsubsection Semantic Analysis (end)
+
+\subsection{Programming Language Basics} % (fold)
+\label{sub:Programming Language Basics}
+\subsubsection{Aliasing} % (fold)
+\label{ssub:Aliasing}
+There is as interesting consequence of call-by-reference (references passed by value). Two formal parameters can refer to the same location, and they are alias of each other. You need to understand this in order to optimize a program, because certain optimizations may only be done if one can be sure there is no aliasing.
+% subsubsection Aliasing (end)
+% subsection Programming Language Basics (end)
+
+\section{A Simple Syntax-Directed Translator} % (fold)
+\label{sec:A Simple Syntax-Directed Translator}
+
+\subsection{Introduction} % (fold)
+\label{sub:Introduction}
+Intermediate code-generation comes in two forms, \emph{abstract syntax tree} which represent the hierarchical syntactic structure of the source program. The other one is \emph{three address instructions}
+% subsection Introduction (end)
+
+\subsection{Syntax-Directed Translation} % (fold)
+\label{sub:Syntax-Directed Translation}
+Syntax-directed translation is done by attaching rules or program fragments to productions in a grammar.
+
+\subsubsection{Synthesized Attributes} % (fold)
+\label{ssub:Synthesized Attributes}
+The idea of associating quantities with programming constructs can be expressed in terms of grammars. We attach rules to productions of the grammar. A \emph{syntax-directed definition} associates:
+\begin{enumerate}
+	\item With each grammar symbol, a set of attributes
+	\item With each production, a set of \emph{semantic rules} for computing values of the attributes associated with the symbols appearing in the production.
+\end{enumerate}
+An attribute is \emph{synthesized} if its value at a parse-tree node N is determined from attribute values at the children of N and N itself, and can be evaluated by a single bottom-up traversal.
+% subsubsection subsubsection name (end)
+
+% subsection Syntax-Directed Translation (end)
+
+\subsection{A Translator for Simple Expressions} % (fold)
+\label{sub:A Translator for Simple Expressions}
+A syntaxt-directed translation scheme often serves as the specification for a translator. We might come up in a conflict between a translatable and parsable grammar.
+
+\subsubsection{Abstract and Concrete Syntax} % (fold)
+\label{ssub:Abstract and Concrete Syntax}
+Useful starting point for creating a translator. AST resemble parse trees to an extent, but these are conceptually different. Parse trees have the interior nodes representing non-terminals, and a syntax tree represent programming constructs. Many productions represent grammar constructs, but many are just there to simplify parsing. The helpers are dropped in the syntax tree.
+% subsubsection Abstract and Concrete Syntax (end)
+% subsection A Translator for Simple Expressions (end)
+
+\subsection{Lexical Analysis} % (fold)
+\label{sub:Lexical Analysis}
+A lexical analyzer reads characters from the input and groups them into "token objects" with attribute values. A sequence that comprises a single token is called a \emph{lexeme}. An \textbf{num} can have a value and an \textbf{id} can have a lexeme.
+
+\subsubsection{Removal of White Space and Comments} % (fold)
+\label{ssub:Removal of White Space and Comments}
+White space and comments can be removed by the lexer, so the parser wont have to worry.
+% subsubsection Removal of White Space and Comments (end)
+% subsection Lexical Analysis (end)
+
+\subsection{Intermediate Code Generation} % (fold)
+\label{sub:Intermediate Code Generation}
+
+\subsubsection{Construction of Syntax Trees} % (fold)
+\label{ssub:Construction of Syntax Trees}
+Syntax trees can be created for any construct, not just expressions. Each construct is represented by a node, with children for the semantically meaningful components of the construct. These nodes can be represented in a class structure with an arbitrary amount of children.
+% subsubsection Construction of Syntax Trees (end)
+
+% subsection Intermediate Code Generation (end)
+
+% section A Simple Syntax-Directed Translator (end)
+
+\section{Lexical Analysis} % (fold)
+\label{sec:Lexical Analysis}
+
+\subsection{The Lexical-Analyzer Generator Lex} % (fold)
+\label{sub:The Lexical-Analyzer Generator Lex}
+This tool allows one to specify a lexical analyzer by specifying regular exrpessions to describe tokens. The expressions are transformed to deterministic finite automatas. Use:
+\begin{itemize}
+	\item Lex source program \ta lex compiler \ta c source program
+	\item C source program \ta C compiler \ta Lexer executable
+	\item Input stream \ta Lexer executable \ta Sequence of tokens
+\end{itemize}
+
+% subsection The Lexical-Analyzer Generator Lex (end)
+% section Lexical Analysis (end)
+
+\section{Syntax Analysis} % (fold)
+\label{sec:Syntax Analysis}
+Every program has rules that describes the syntactic structure. These rules are normally expressed as context-free grammars. Grammars have significant benefits:
+\begin{itemize}
+	\item A grammar gives a precise, yet easy-to-understand syntactic specification of a programming language
+	\item Certain classes of grammars can be deterministicly and efficiently parsed, and the process of making the parser might reveal ambigous constructs in the language.
+\end{itemize}
+
+\subsection{Top-Down Parsing} % (fold)
+\label{sub:Top-Down Parsing}
+The problem of constructiong a parse tree for the input string, starting from the root and creating the nodes of the porse tree in preorder(depth-first). \emph{Will generate the leftmost derivation}. At each step the problem is to determine the production to apply for each non-terminal. A predictive recursive-descent parser can choose productions by looking at the next symbol. We call thiss the LL(k) class.
+% subsection Top-Down Parsing (end)
+\subsection{Bottom-Up Parsing} % (fold)
+\label{sub:Bottom-Up Parsing}
+A bottom-up parse corresponds to the construction of a parse tree for an input string that begins at the leaves (the bottom) and working up towards the root (the top). A general style of bottom-up parsing is shift-reduce parsing, which can be built by using LR grammars. 
+\subsubsection{Reductions} % (fold)
+\label{ssub:Reductions}
+We can thing of bottom-up parsing as the process of reducing a string \emph{w} to the start symbol of the grammar. Each step matches a substring and replaces it with a non-terminal. By definition, a reduction is the reverse of a step in a derivation. The goal is to construct a derivation in reverse, which in fact will be a rightmost derivation.
+% subsubsection Reductions (end)
+% subsection Bottom-Up Parsing (end)
+
+\subsection{Using Ambigous Grammars} % (fold)
+\label{sub:Using Ambigous Grammars}
+Any ambigous grammar fails to be in LR. Ambigous grammars might still be useful, because of it's expressiveness. We can specify disambigouating rules, although these should be used iwth care.
+
+\subsubsection{Precedence and Associativity to Resolve Conflicts} % (fold)
+\label{ssub:Precedence an dAssociativity to Resolve Conflicts}
+We might alter productions to give precedence (E \ta E + E | E * E | (E) | id). This might not always be the optimal apporach, because the parser will have more states, and it is hard to modify precedence. We can express conflicts with precedence if we have different operators, associativity when considering equal operators.
+% subsubsection Precedence an dAssociativity to Resolve Conflicts (end)
+% subsection Using Ambigous Grammars (end)
+
+\subsection{Parser Generators} % (fold)
+\label{sub:Parser Generators}
+\emph{yacc} (yet another compiler-compiler) can construct a translator for a programming language using a specification. It will parse with the LALR method. It is used the same way as \emph{lex} (from specification to program that can read an input stream). The yacc specification file has three parts:
+\begin{itemize}
+	\item Declarations
+	\item Translation rules
+	\item Supporting C routines
+\end{itemize}
+
+\paragraph{The Declarations Part} % (fold)
+\label{par:The Declarations Part}
+Consists of two parts, normal C declarations and declarations of grammar tokens. The grammar docens will then be available for the second and third part. You can make the tokens available for Lex as well.
+% paragraph The Declarations Part (end)
+
+\paragraph{The Translation Rules Part} % (fold)
+\label{par:The Translation Rules Part}
+Put rules here, where each rule consists of grammar productions and associated semantic actions. Unquoted means non-terminals, quoted means terminals. \emph{\$\$} means the attribute value associated with the head, \emph{\$i} means the ith gramar symbol.
+% paragraph The Translation Rules Part (end)
+\paragraph{The Supporting C-Routines Part} % (fold)
+\label{par:The Supporting C-Routines Part}
+Must provide \emph{yylex()} (might come from lex/flex) which produces tokens.
+% paragraph The Supporting C-Routines Part (end)
+% subsection Parser Generators (end)
+
+\subsubsection{Using Yacc with Ambigous Grammars} % (fold)
+\label{ssub:Using Yacc with Ambigous Grammars}
+Some grammars might produce conflicts, and it will report so. Unless instructed otherwise, it will resolve all conflics with following rules:
+\begin{itemize}
+	\item A reduce/reduce is resolved by choosing the conflicting production listed first in the specification.
+	\item A shift/reduce conflict is resolved in favour of shift (will resolve dangling-else ambigouity correctly).
+\end{itemize}
+These rules might not be what the compiler writer wants, so we can chose associativity (\emph{\%left '+' '-'}) or force it to be nonnassociative. You can also force precedence.
+% subsubsection Using Yacc with Ambigous Grammars (end)
+
+\section{Intermediate-Code Generation} % (fold)
+\label{sec:Intermediate-Code Generation}
+\subsection{Type Checking} % (fold)
+\label{sub:Type Checking}
+To do \emph{type checking} a compiler needs to assign a type expression to each component of the source program. It must then determine that these types conform to the rules (type system) of a program. It has the potential of caching errors. A \emph{sound type system} eliminates the need for dynamic checking for type erors. A language is \emph{strolgy typed} if a compler guarantees that the program will run without type errors.
+\begin{itemize}
+	\item Static/dynamic typed is about WHEN type information is aquired (compile-time or run-time)
+	\item Strongly/weakly typed is about how stricly types are distinguished.
+\end{itemize}
+\subsubsection{Rules for Type Checking} % (fold)
+\label{ssub:Rules for Type Checking}
+Two forms, \emph{synthesis} which builds up the type of an expression from the types of its subexpressions and \emph{type inference} which determines the type of a language construct from the way it is used. The latter can be used for languages that permits names to be used without declaration, but still uses type checking. \emph{void} is a special type that denote the absence of a value.
+% subsubsection Rules for Type Checking (end)
+\subsubsection{Type Conversions} % (fold)
+\label{ssub:Type Conversions}
+You have \emph{widening} (preserve information) and \emph{narrowing} (may loose information). If type conversions are done automatically by the compiler, it is \emph{implicit}. These conversions are also known as \emph{coercions}, and is normally limited to widening conversions. Two functions, \emph{max(a,b)} finds the highest type in the hierarchy and \emph{widen()} which widens a type.
+% subsubsection Type Conversions (end)
+
+% subsection Type Checking (end)
+
+\subsection{Control Flow} % (fold)
+\label{sub:Control Flow}
+
+% subsection Control Flow (end)
+
+\subsection{Backpatching} % (fold)
+\label{sub:Backpatching}
+A key problem when generating code for boolean expressions and flow of control stataments is that of matching a jump intstruction with the target of the jump. AN approach to this is called \emph{backpatching}, in which lists of jumps are passed as synthesized attributes. When a jump is generated, the target of the jump is tempoarily left unspecified.
+
+\subsubsection{One-Pass Code Generation using Backpatching} % (fold)
+\label{ssub:One-Pass Code Generation using Backpatching}
+Backpatching can be used to generate code for boolean expressions and flow-of-control statements in one pass. We use synthesized attributes \emph{truelist} and \emph{falselist} to manage labels in jumping code for bool expressions.
+% subsubsection One-Pass Code Generation using Backpatching (end)
+
+\subsubsection{Backpatching for Boolean Expressions} % (fold)
+\label{ssub:Backpatching for Boolean Expressions}
+
+% subsubsection Backpatching for Boolean Expressions (end)
+
+\subsubsection{Flow-of-Control Statements} % (fold)
+\label{ssub:Flow-of-Control Statements}
+
+% subsubsection Flow-of-Control Statements (end)
+
+% subsection Backpatching (end)
+
+% section Intermediate-Code Generation (end)
+
+\section{Run-Time Environments} % (fold)
+\label{sec:Run-Time Environments}
+A compiler must implement the abstarctions in the source language. In addition to names, scopes, bindings etc, it must also cooperate with the operating system and other system software. To do this, the compiler creates an \emph{run-time environment} which it assumes the program are being executed. This deals with storage, namning, mechanisms to access variables, parameters, return values, interface to the operating system etc.
+
+\subsection{Storage Organization} % (fold)
+\label{sub:Storage Organization}
+In the perspective of the compiler writer, the program runs in its own logical address space, where the OS maps from logical to physical. Normal setup is Code \ta Static \ta Heap \ta Free Memory \ta Stack. The amount of storage needed is determined by the types in the program. Many machines requires the data to be \emph{aligned}, that all addresses must be divisible by 4. The compiler may omit this limitation by packing data. Code size and static data is known compile-time.\\
+\\
+You have two areas for dynamic storage allocation, the \emph{stack} and the \emph{heap}, which sizes can change during program execution. Some programs allocate the heap automatically and has a garbage collection, some must have the programmer explicitly allocate space on the heap.
+
+\subsubsection{Stacit Versus Dynamic Storage Allocation} % (fold)
+\label{ssub:Stacit Versus Dynamic Storage Allocation}
+A storage allocation is static (compile time) if the decicion can be made at looking at the text of a program. A storage allocation is \emph{dynamic} if it can be decided only when the program is running. Two techniques:
+\begin{itemize}
+	\item Stack
+	\item Heap. For data that might outlive the call to the procedure that created it.
+\end{itemize}
+% subsubsection Stacit Versus Dynamic Storage Allocation (end)
+% subsection Storage Organization (end)
+
+\subsection{Stack Allocation of Space} % (fold)
+\label{sub:Stack Allocation of Space}
+Almost all compilers for procedures/methods will use the stack. Will make sure no variables overlap in time and the relative addresses are always the same.
+
+\subsubsection{Activation Records} % (fold)
+\label{ssub:Activation Records}
+Procedure calls and returns are usually managed by a run-time stack (\emph{Control stack}). Each live activation has an activation record (frame). Might include:
+\begin{itemize}
+	\item Temporary values
+	\item Local data
+	\item A saved machine status
+	\item Access link
+	\item Control link, pointing to the activation record of the caller.
+	\item Space for return value
+	\item The actual parameters used by the calling procedure.
+\end{itemize}
+% subsubsection Activation Records (end)
+% subsection Stack Allocation of Space (end)
+
+\subsection{Heap Management} % (fold)
+\label{sub:Heap Management}
+For data that must be explicitly deleted.
+\subsubsection{The Memory Manager} % (fold)
+\label{ssub:The Memory Manager}
+The memory manager keeps track of all the free space in heap storage at all times. Performs:
+\begin{itemize}
+	\item \emph{Allocation}. Must provide a memory region in requested size.
+	\item \emph{Deallocation}. For reusing space.
+\end{itemize}
+% subsubsection The Memory Manager (end)
+% subsection Heap Management (end)
+
+% section Run-Time Environments (end)
+
+\section{Code Generation} % (fold)
+\label{sec:Code Generation}
+The final phase in the compiler is the code generator. It takes IR and input and produces a semantically equivalent target program. It must
+\begin{itemize}
+	\item Preserve semantic meaning
+	\item Make efficient use of resources on target machine
+	\item The code generator itself must run efficiently
+\end{itemize}
+Making optimal code are undecidable, but many useful methods with heuristics exists which will improve program performance by many factors.
+
+\subsection{Addresses in the Target Code} % (fold)
+\label{sub:Addresses in the Target Code}
+
+% subsection Addresses in the Target Code (end)
+
+\subsection{Instruction Selection by Tree Rewriting} % (fold)
+\label{sub:Instruction Selection by Tree Rewriting}
+Instruction selection can be a large combinatorial task, especially on CISC. We treat instruction selection as a tree-rewriting problem. Here we can make efficient algorithms.
+
+\subsubsection{Tree-Translation Schemes} % (fold)
+\label{ssub:Tree-Translation Schemes}
+The input of code-generation will be a sequence of trees at the semantic level. We need to apply a sequence of tree-rewriting rules to reduce the input tree to a single node. Each rule represents the translation of a portion of the tree given by the template. The replacement is called \emph{tiling} of the subtree
+% subsubsection Tree-Translation Schemes (end)
+
+\subsubsection{Code Generation by Tiling an Input Tree} % (fold)
+\label{ssub:Code Generation by Tiling an Input Tree}
+Given an input tree, the templates in the tree-rewriting rules are applied to tile its subtrees. When matchi is found, the subtree is replaced with replacement node of a rule and action associated with the rule is done (generate code). Two issues:
+\begin{itemize}
+	\item How is the tree-pattern matching to be done?
+	\item What if we have more matches?
+\end{itemize}
+Must always have a match and not inifite amount of matches. You can create a postfix representation of a tree and create a grammar for it. By reduce-reduce, take largest production, by shift-reduce, shift. This is known as \emph{maximal munch}\footnote{From wikipedia: In computer programming and computer science, "maximal munch" or "longest match" is the principle that when creating some construct, as much of the available input as possible should be consumed.}. This is a good and well understood method, but it has its challenges.
+% subsubsection Code Generation by Tiling an Input Tree (end)
+
+% subsection Instruction Selection by Tree Rewriting (end)
+
+% section Code Generation (end)
+
+\section{Machine-Independent Optimizations} % (fold)
+\label{sec:Machine-Independent Optimizations}
+High-level language constructs can introduce substantial run-time overhead if we naively translate each construct independently. We have three forms:
+\begin{itemize}
+	\item Local code optimization - within a block
+	\item Global code optimization - across basic blocks
+	\item Interprocedural code optimization - across functions and procedures
+\end{itemize}
+Most global optimization are based on \emph{data-flow analyses}.
+
+\subsection{The Principal Sources of Optimization} % (fold)
+\label{sub:The Principal Sources of Optimization}
+A compiler optimization must presere the semanticts of the original program, and the optimizer is usually only able to apply low-level semantic transformations.
+
+\subsubsection{Causes of redundancy} % (fold)
+\label{ssub:Causes of redundancy}
+Sometimes redundancy is available at source level, but often introduced because the source is written in a high level language (array accesses will cause redundancy). By having a compiler eliminate the redundancies, we get the best of both worlds: the programs are both efficient and easy to maintain.
+% subsubsection Causes of redundancy (end)
+
+\subsubsection{A Running Example: Quicksort} % (fold)
+\label{ssub:A Running Example: Quicksort}
+blabla
+% subsubsection A Running Example: Quicksort (end)
+
+\subsubsection{Semantics-Preserving Transformations} % (fold)
+\label{ssub:Semantics-Preserving Transformations}
+A compiler can improve a program without changing the function it computes.
+% subsubsection Semantics-Preserving Transformations (end)
+
+\subsubsection{Global Common Subexpressions} % (fold)
+\label{ssub:Global Common Subexpressions}
+An occurence of an expression $E$ is called a \emph{common subexpression} if $E$ was previously computed and the values of the variables in $E$ have not changed since the previous computation.
+% subsubsection Global Common Subexpressions (end)
+
+\subsubsection{Copy Propagation} % (fold)
+\label{ssub:Copy Propagation}
+A \emph{copy statement} is an assignment on the form $u = v$. The idea is to use $v$ for $u$ in other statements using $u$. It may not appear to be an improvement, but dead-code elimination gives the opportunity to get rid of the copy statement.
+% subsubsection Copy Propagation (end)
+
+\subsubsection{Dead-Code Elimination} % (fold)
+\label{ssub:Dead-Code Elimination}
+A variable is \emph{live} at a point in a program if its value can be used subesquently, otherwise \emph{dead}. We would like to remove dead statements. Copy propagation makes dead code elimination able to delete many copy statements.\\
+\\ Deducing at compile time that a value of an expression is known as \emph{constant folding}.
+% subsubsection Dead-Code Elimination (end)
+
+\subsubsection{Code Motion} % (fold)
+\label{ssub:Code Motion}
+Loops are very important place for optimizations. \emph{Code motion} takes an expression that evaluates to the same each time and lifts it out of the loop.
+% subsubsection Code Motion (end)
+
+\subsubsection{Induction Variables and Reduction in Strength} % (fold)
+\label{ssub:Induction Variables and Reduction in Strength}
+A variable \emph{x} is said to be an induction variable if thees is a positive or negative constant \emph{c} such that each time \emph{x} is assigned, its value increases by \emph{c}. They can be computed with a single increment per loop iteration. Transforming from an expensive to a cheap operation is \emph{strength reduction}, which you can do on induction variables. It's normal to work inside-out when optimizing loops. When there ar two or more induction variables in a loop, it might be possible to get rid of all but one.
+% subsubsection Induction Variables and Reduction in Strength (end)
+% subsection The Principal Sources of Optimization (end)
+
+\subsection{Loops in Flow Graphs} % (fold)
+\label{sub:Loops in Flow Graphs}
+Loops when considering optimizations are important because programs spend most of their time executing them. Additionally, program analysis can happen faster if it contains no loops, because you only need one pass through the source code.
+
+		\subsubsection{Dominators} % (fold)
+		\label{ssub:Dominators}
+		A node \emph{d} of a flow graph \emph{dominates} node n, written d dom n, if every path from the entry node of the flow graph to n goes through d. Every node dominates itself. The information can be presented in a \emph{dominator tree}, where entry is the root and each node dominates its descendants. The problem can be formulated as a forward data-flow analysis.
+
+		% subsubsection Dominators (end)
+		\subsubsection{Edges in a Depth-First Spanning Tree} % (fold)
+		\label{ssub:Edges in a Depth-First Spanning Tree}	
+		We can traverse it with DFS, getting following endges
+		\begin{itemize}
+			\item Advancing edges
+			\item Retreating edges
+			\item Cross edges
+		\end{itemize}
+		% subsubsection Edges in a Depth-First Spanning Tree (end)
+% subsection Loops in Flow Graphs (end)
+
+\subsection{Introduction to Data-Flow Analysis} % (fold)
+\label{sub:Introduction to Data-Flow Analysis}
+\emph{Data-flow analysis} refers to a body of techniques that derive information about the flow of data along program execution paths. You can answer many questions about optimization, like global common subexpression and dead code ellimination.
+
+\subsubsection{The Data-Flow Abstraction} % (fold)
+\label{ssub:The Data-Flow Abstraction}
+You can view the program as a series of transformations, where the states are between the statements. Control flow will go from statement to statement in single blocks, and go between blocks if there is an edge between. \emph{Execution path} is the instructions executed, which there normally is an infinite number of. Different analyses may choose to abstract out different information.\\
+\\
+The definitions that may reach a program point along some path are known as reaching definitions.
+% subsubsection The Data-Flow Abstraction (end)
+
+\subsubsection{The Data-Flow Analysis Schema} % (fold)
+\label{ssub:The Data-Flow Analysis Schema}
+At each program point we associate a \emph{data-flow value} which is the set of all possible program states that can be observed for that point. We denote the data-flow values before and after each statement $s$ by $IN[s]$ and $OUT[s]$, and the \emph{data-flow problem} is to find a solution to a set of constraints on these definitions for all statements $s$.
+
+\paragraph{Transfer Functions} % (fold)
+\label{par:Transfer Functions}
+The relationship between the data-flow values before and after the assignment statement is known as a \emph{transfer function}. Might have two directions (forward and backward analysis).
+% paragraph Transfer Functions (end)
+
+\paragraph{Control-Flow Constraints} % (fold)
+\label{par:Control-Flow Constraints}
+You can create $IN[B]$ and $OUT[B]$ by running through all the statements.
+% paragraph Control-Flow Constraints (end)
+
+% subsubsection The Data-Flow Analysis Schema (end)
+
+\subsubsection{Data-Flow Schemas on Basic Blocks} % (fold)
+\label{ssub:Data-Flow Schemas on Basic Blocks}
+Going through a block is easy, just follow each statement, and we get:
+\begin{equation}
+	OUT[B] = f_b(IN[B])
+\end{equation}
+If we do constant propagation, we are interested in the sets of constats that \emph{may} be assigned to a variable, then we have forward flow with union operator.
+\begin{equation}
+	IN[B] = \cup_{P a predecessor of B}OUT[P]
+\end{equation}
+No unique solution, but find the most precise that satisfies control-flow and transfer constraints.
+% subsubsection Data-Flow Schemas on Basic Blocks (end)
+
+\subsubsection{Reaching Definitions} % (fold)
+\label{ssub:Reaching Definitions}
+One of the most common and useful data-flow schemas. We say a definition $d$ \emph{reaches} a point $p$ if there is a path from the point immediatly following $d$ to $p$, such that $d$ is not killed along that path. We might have aliases, and that is why we must be conservative.
+
+\paragraph{Transfer Equation for Reaching Definitions} % (fold)
+\label{par:Transfer Equation for Reaching Definitions}
+\begin{equation}
+	f_d(x) = gen_d \cup (x - kill_d)
+\end{equation}
+The gen-set contains all definitions that are directly visible after the block (will only generate last assignment of each variable), but the kill-set kills all definitions of assignment (even those inside the same block).
+% paragraph Transfer Equation for Reaching Definitions (end)
+
+\paragraph{Control-Flow Equations} % (fold)
+\label{par:Control-Flow Equations}
+Union is the meet operator for reaching definitions. It creates a summary fo the contributions from different paths at the confluecnce of those paths.
+% paragraph Control-Flow Equations (end)
+
+% subsubsection Reaching Definitions (end)
+
+\subsubsection{Live-Variable Analysis} % (fold)
+\label{ssub:Live-Variable Analysis}
+eful for register allocation for basic blocks (dead values need not be stored). We use \textbf{bacwkard analysis} and we define:
+\begin{enumerate}
+	\item $def_B$ as the set of variables defined in the block.
+	\item $use_B$ as the set of variables used in the block.
+\end{enumerate}
+About the same as the reaching definitions, except opposite direction:
+\begin{equation}
+	IN[B] = use_b \cup (OUT[B] - def_B)
+\end{equation}
+% subsubsection Live-Variable Analysis (end)
+
+\subsubsection{Available Expressions} % (fold)
+\label{ssub:Availabel Expressions}
+An expression $x + y$ is \emph{available} at a point $p$ if every path from the entry node to $p$ evaluates $x + y$, and after the last such evaluation prior to reaching $p$, there are no subesquent assignments to $x$ or $y$. A block \emph{kills} expression $x + y$ if it assigns (or may assign) $x$ or $y$ and does not subesquently recompute $x + y$. A block \emph{generates} an expression $x + y$ if it evaluates it and not subsequently define $x$ or $y$. The primary use of available expressions is detecting global common subexpressions. At each step ($x = y + z$):
+\begin{enumerate}
+	\item Add to $S$ the expression $y + z$.
+	\item Delete from $S$ any expression involving $x$.
+\end{enumerate}
+Must be done in correct order. Data-flow can be done the same way as reaching definitions (forward analysis), but the meet operator is \emph{intersection rather than union}. An expression is available at the top of a block if it is available at the end of each predecessor block.\\
+\\
+In reaching definitions, we start with a set too small and work up, in available expression, we work with a set too large and work down. We start with the assumption that everything is available everywhere, to keep the optimization conservative.
+% subsubsection Availabel Expressions (end)
+
+% subsection Introduction to Data-Flow Analysis (end)
+
+% section Machine-Independent Optimizations (end)
+
+\section{Interprocedural Analysis} % (fold)
+\label{sec:Interprocedural Analysis}
+An interprocedural analysis operates across an entire program. One simple and useful technique is \emph{inlining} of functions, where you replace the function invocation with the body of the function itself. You cannot immideatly inline recursive methods, and inlining may expand code size exponentially (cache miss). Advantages of function inlining is improved speed, due to no method invocation overhead.
+% section Interprocedural Analysis (end)
+
+\section{Other definitions} % (fold)
+\label{sec:Other definitions}
+
+\paragraph{Loop Unrolling} % (fold)
+\label{par:Loop Unrolling}
+Loop unrolling creates more instructions in the loop body, permitting global scheduling algorithms to find more parallelism. Will increase code size, and hereby introduce more cache misses and memory references.
+% paragraph Loop Unrolling (end)
+
+% section Other definitions (end)
+
+\end{document}
