@@ -111,14 +111,33 @@ Every program has rules that describes the syntactic structure. These rules are 
 \label{sub:Top-Down Parsing}
 The problem of constructiong a parse tree for the input string, starting from the root and creating the nodes of the porse tree in preorder(depth-first). \emph{Will generate the leftmost derivation}. At each step the problem is to determine the production to apply for each non-terminal. A predictive recursive-descent parser can choose productions by looking at the next symbol. We call thiss the LL(k) class.
 % subsection Top-Down Parsing (end)
+
 \subsection{Bottom-Up Parsing} % (fold)
 \label{sub:Bottom-Up Parsing}
-A bottom-up parse corresponds to the construction of a parse tree for an input string that begins at the leaves (the bottom) and working up towards the root (the top). A general style of bottom-up parsing is shift-reduce parsing, which can be built by using LR grammars. 
+A bottom-up parse corresponds to the construction of a parse tree for an input string that begins at the leaves (the bottom) and working up towards the root (the top). A general style of bottom-up parsing is shift-reduce parsing, which can be built by using LR grammars. It need not to see as much of the parse tree as the top-down parsers.
 \subsubsection{Reductions} % (fold)
 \label{ssub:Reductions}
 We can thing of bottom-up parsing as the process of reducing a string \emph{w} to the start symbol of the grammar. Each step matches a substring and replaces it with a non-terminal. By definition, a reduction is the reverse of a step in a derivation. The goal is to construct a derivation in reverse, which in fact will be a rightmost derivation.
 % subsubsection Reductions (end)
+
 % subsection Bottom-Up Parsing (end)
+
+\subsection{Introduction to LR Parsing: Simple LR} % (fold)
+\label{sub:Introduction to LR Parsing: Simple LR}
+The mot prevalent type of bottom-up parser today is LR(k) parsing; the "L" is for left-to-right, "R" is for rightmost derivation (in reverse) and $k$ is number of lookahead symbols. This section introduces the easiest way to construct shift/reduce parsers.
+
+\subsubsection{Why LR Parsers?} % (fold)
+\label{ssub:Why LR Parsers?}
+LR-parsers are table driven. Attractive because:
+\begin{itemize}
+	\item LR parsers can be constructed to recognize virtually all programming language constructs for which context-free grammars can be written.
+	\item The LR-parsing method is the most general nonbacktracking shift-reduce parsing method known, yet implemented efficiently.
+	\item Can detect syntax errors as soon as possible
+	\item The class of grammars that can be parsed using LR methods \textbf{is a proper superset} of grammars that can be parsed with predictive LL methods. 
+\end{itemize}
+Typical drawback is that it is too much work to construct an LR parser by hand for a typical language grammar.
+% subsubsection Why LR Parsers? (end)
+% subsection Introduction to LR Parsing: Simple LR (end)
 
 \subsection{Using Ambigous Grammars} % (fold)
 \label{sub:Using Ambigous Grammars}
@@ -360,26 +379,6 @@ A variable \emph{x} is said to be an induction variable if thees is a positive o
 % subsubsection Induction Variables and Reduction in Strength (end)
 % subsection The Principal Sources of Optimization (end)
 
-\subsection{Loops in Flow Graphs} % (fold)
-\label{sub:Loops in Flow Graphs}
-Loops when considering optimizations are important because programs spend most of their time executing them. Additionally, program analysis can happen faster if it contains no loops, because you only need one pass through the source code.
-
-		\subsubsection{Dominators} % (fold)
-		\label{ssub:Dominators}
-		A node \emph{d} of a flow graph \emph{dominates} node n, written d dom n, if every path from the entry node of the flow graph to n goes through d. Every node dominates itself. The information can be presented in a \emph{dominator tree}, where entry is the root and each node dominates its descendants. The problem can be formulated as a forward data-flow analysis.
-
-		% subsubsection Dominators (end)
-		\subsubsection{Edges in a Depth-First Spanning Tree} % (fold)
-		\label{ssub:Edges in a Depth-First Spanning Tree}	
-		We can traverse it with DFS, getting following endges
-		\begin{itemize}
-			\item Advancing edges
-			\item Retreating edges
-			\item Cross edges
-		\end{itemize}
-		% subsubsection Edges in a Depth-First Spanning Tree (end)
-% subsection Loops in Flow Graphs (end)
-
 \subsection{Introduction to Data-Flow Analysis} % (fold)
 \label{sub:Introduction to Data-Flow Analysis}
 \emph{Data-flow analysis} refers to a body of techniques that derive information about the flow of data along program execution paths. You can answer many questions about optimization, like global common subexpression and dead code ellimination.
@@ -465,6 +464,26 @@ In reaching definitions, we start with a set too small and work up, in available
 % subsubsection Availabel Expressions (end)
 
 % subsection Introduction to Data-Flow Analysis (end)
+\subsection{Loops in Flow Graphs} % (fold)
+\label{sub:Loops in Flow Graphs}
+Loops when considering optimizations are important because programs spend most of their time executing them. Additionally, program analysis can happen faster if it contains no loops, because you only need one pass through the source code.
+
+		\subsubsection{Dominators} % (fold)
+		\label{ssub:Dominators}
+		A node \emph{d} of a flow graph \emph{dominates} node n, written d dom n, if every path from the entry node of the flow graph to n goes through d. Every node dominates itself. The information can be presented in a \emph{dominator tree}, where entry is the root and each node dominates its descendants. The problem can be formulated as a forward data-flow analysis.
+
+		% subsubsection Dominators (end)
+		\subsubsection{Edges in a Depth-First Spanning Tree} % (fold)
+		\label{ssub:Edges in a Depth-First Spanning Tree}	
+		We can traverse it with DFS, getting following endges
+		\begin{itemize}
+			\item Advancing edges
+			\item Retreating edges
+			\item Cross edges
+		\end{itemize}
+		% subsubsection Edges in a Depth-First Spanning Tree (end)
+% subsection Loops in Flow Graphs (end)
+
 
 % section Machine-Independent Optimizations (end)
 
