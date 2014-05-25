@@ -2,6 +2,9 @@
 
 % Packages
 \usepackage{fullpage}
+\usepackage{listings}
+
+% Commands
 \newcommand{\ta}{$\to$~}
 \newcommand{\meet}{$\wedge$~}
 
@@ -123,6 +126,33 @@ Syntax trees can be created for any construct, not just expressions. Each constr
 
 \section{Lexical Analysis} % (fold)
 \label{sec:Lexical Analysis}
+We can write by hand or get a generator (like \emph{lex}) to produce lexical analysers for us.
+
+\subsection{The Role of the Lexical Analyzer} % (fold)
+\label{sub:The Role of the Lexical Analyzer}
+The main task of the lexical analyzer is to read input characters of the source program, group them into lexemes, and produce as output a sequence of tokens for each lexeme in the source program, which is then again sent to the syntax analyzer. The syntax analyzer calls \emph{getNextToken} until end of token stream. Lexers might remove whitespace and comments.
+
+\subsubsection{Lexical Analysis Versus Parsing} % (fold)
+\label{ssub:Lexical Analysis Versus Parsing}
+Why split these?
+\begin{enumerate}
+	\item Simplicity. Grammars will be much more complicated if it were to handle the lexers job
+	\item Efficiency. We may use specialized tasks for lexing.
+	\item Protability.
+\end{enumerate}
+% subsubsection Lexical Analysis Versus Parsing (end)
+
+\subsubsection{Tokens, Patterns, and Lexemes} % (fold)
+\label{ssub:Tokens, Patterns, and Lexemes}
+We use terms:
+\begin{itemize}
+	\item A \emph{token} is a pair consisting of a token name and an optional value. The name is an abstract symbol.
+	\item A \emph{pattern} is a descritpion of the form that the lexemes of a token may take
+	\item A \emph{lexeme} is a sequence of characters in teh source program that matches the pattern of a token and is identifiyed by the lexical analyzer as an intance of that token.
+\end{itemize}
+% subsubsection Tokens, Patterns, and Lexemes (end)
+
+% subsection The Role of the Lexical Analyzer (end)
 
 \subsection{The Lexical-Analyzer Generator Lex} % (fold)
 \label{sub:The Lexical-Analyzer Generator Lex}
