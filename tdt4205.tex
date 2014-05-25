@@ -399,6 +399,44 @@ Must always have a match and not inifite amount of matches. You can create a pos
 
 % subsection Instruction Selection by Tree Rewriting (end)
 
+\subsection{Register Allocation and Assignment} % (fold)
+\label{sub:Register Allocation and Assignment}
+Instructions involving registers are faster than those referencing memory, so we need to utilitize registers efficiently. Two problems:
+\begin{itemize}
+	\item \emph{Register Allocation}. What values?
+	\item \emph{Register Assignment}. Which value should go where?
+\end{itemize}
+
+\subsubsection{Global Register Allocation} % (fold)
+\label{ssub:Global Register Allocation}
+We would like to keep registers consistent across all block boundaries (live variables). Loops are important. One approach is to have some fixed number of registers holding the inner loop variables, like you could in C by using the \emph{register} keyword.
+% subsubsection Global Register Allocation (end)
+
+\subsubsection{Usage Counts} % (fold)
+\label{ssub:Usage Counts}
+Count how much savings you get by keeping a variable in a register during a loop.
+% subsubsection Usage Counts (end)
+
+\subsubsection{Register Assignment for Outer Loops} % (fold)
+\label{ssub:Register Assignment for Outer Loops}
+Having applied the teqnique from section \ref{ssub:Usage Counts}, the same idea may be applied to progressively larger enclosing loops.
+% subsubsection Register Assignment for Outer Loops (end)
+
+\subsubsection{Register Allocation By Graph Coloring} % (fold)
+\label{ssub:Register Allocation By Graph Coloring}
+When a register is needed for a computation but all available registers are in use, the contents of one of the used registers must be stored (\emph{spilled}). Graph coloring can be used for allocating and managing register spills. Two passes:\\
+\\
+The first pass, it assumes it has an infinite number of symbolic registers and selects instructions, and we assume we have reserved registers for stack pointer, frame pointer etc. \\
+\\
+The second pass, for each procedure a \emph{register-interference graph} is constructed in which the nodes are symbolic registers and an edge connects swo nodes if one is live at a point where the other is defined. An attempt is made to color the register-interference graph using $k$ colors, where $k$ is the number of available registers. No adjacent nodes have the same color. A color represents a register. Although NP hard problem, we can use the following heuristic technique:
+\begin{itemize}
+	\item Remove node $n$ if it has less than $k$ from $G$ and get $G'$. If $G'$ can be $k$-colored, $G$ can too (we know we have at least one color available).
+	\item Rinse, repeat. Two things might happen: You get an empty graph (which means success) or you do not (which means you have to spill).
+\end{itemize}
+% subsubsection Register Allocation By Graph Coloring (end)
+
+% subsection Register Allocation and Assignment (end)
+
 % section Code Generation (end)
 
 \section{Machine-Independent Optimizations} % (fold)
@@ -695,6 +733,8 @@ Loops when considering optimizations are important because programs spend most o
 \label{sec:Interprocedural Analysis}
 An interprocedural analysis operates across an entire program. One simple and useful technique is \emph{inlining} of functions, where you replace the function invocation with the body of the function itself. You cannot immideatly inline recursive methods, and inlining may expand code size exponentially (cache miss). Advantages of function inlining is improved speed, due to no method invocation overhead.
 % section Interprocedural Analysis (end)
+
+\input{cornell.tex}
 
 \section{Other definitions} % (fold)
 \label{sec:Other definitions}
