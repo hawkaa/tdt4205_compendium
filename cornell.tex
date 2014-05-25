@@ -1,0 +1,181 @@
+\section{Cornell Slides} % (fold)
+\label{sec:Cornell Slides}
+
+\subsection{Lecture 13: Static Semantics} % (fold)
+\label{sub:Lecture 13: Static Semantics}
+\emph{Type inference systems} are a declarative formal system used to define typings for legal programs in a language.
+\begin{equation}
+	\vdash E : T
+\end{equation}
+means "E is a well-typed construct of type T". Type checking demonstrate the validity. \emph{Hypothetical type judgement}:
+\begin{equation}
+	A \vdash E : T
+\end{equation}
+means "In type of context $A$ expression $E$ is well-typed with type $T$".
+% subsection Lecture 13: Static Semantics (end)
+
+\subsection{Lecture 17: Types and Type-Checking} % (fold)
+\label{sub:Lecture 17: Types and Type-Checking}
+Types describes values possibly computed during execution of the program. Type-safety: absence of type errors at run time.
+
+\paragraph{How to ensure Type-Safety?} % (fold)
+\label{par:How to ensure Type-Safety?}
+Bind language constructs, then static checkt to enforce type safety.
+% paragraph How to ensure Type-Safety? (end)
+
+\paragraph{Statically typed languages} % (fold)
+\label{par:Statically typed languages}
+Types are defined and checked compile time, and do not change.
+% paragraph Statically typed languages (end)
+
+\paragraph{Dynamically typed language} % (fold)
+\label{par:Dynamically typed language}
+Types defined and checked at run-time during program execution.
+% paragraph Dynamically typed language (end)
+
+\subsubsection{Strong vs. weak typing} % (fold)
+\label{ssub:Strong vs. weak typing}
+Refer to how much type consistency is enforced. \textbf{Strongly typed languages:} guarantees that accepted programs are type-safe. \textbf{Weakly typed languages} allow programs to contain type errors. Can archieve strong typing with both static and dynamic typing.
+% subsubsection Strong vs. weak typing (end)
+
+\paragraph{Sondness} % (fold)
+\label{par:Sondness}
+Sound type systems can statically ensure that the program is type safe. Soundness implies strong typing. May reject type-safe programs, but reject as few as possible.
+% paragraph Sondness (end)
+% subsection Lecture 17: Types and Type-Checking (end)
+
+\subsection{Lecture 22: Implementing Objects} % (fold)
+\label{sub:Lecture 22: Implementing Objects}
+About classes. Fields have values that are different between objects and usually mutable. Methods are shared by all objects of a class and usually immutable.
+
+\subsubsection{Methods} % (fold)
+\label{ssub:Methods}
+You have implicit receiver argument, and you must use dispatch vector instead of jumping to absolute address (compiler cannot tell which method to call). All methods has its own integer index, used to look up in dispatch vector. Interfaces has no dispatch vector, only a dispatch vector layout. Abstract classes are halfway. DV only needed for concrete classes. Static methods in java are not really methods. The pointer to the dispatch vector is saved as a field in the class.
+% subsubsection Methods (end)
+
+% subsection Lecture 22: Implementing Objects (end)
+
+\subsection{Lecture 23: Introduction to Optimizations} % (fold)
+\label{ssub:Lecture 23: Introduction to Optimizations}
+We have IR code, and want to optimize at this level. We can optimize in time and space, but all transformations must be safe. It is normally a tradeoff between space and time.
+
+\paragraph{Constant propagation} % (fold)
+\label{par:Constant propagation}
+If a variable is known to be a constant, replace the use of variable with constants.
+% paragraph Constant propagation (end)
+
+\paragraph{Constant Folding} % (fold)
+\label{par:Constant Folding}
+Evaluate operands if they are known compile-time (constants)
+% paragraph Constant Folding (end)
+
+\paragraph{Algebraic Simplification} % (fold)
+\label{par:Algebraic Simplification}
+Use algebraic rules:
+\begin{equation}
+	{y * 1 + 0 \over 1} \to y * 1 + 0 \to y * 1 \to y
+\end{equation}
+% paragraph Algebraic Simplification (end)
+
+\paragraph{Copy Propagation} % (fold)
+\label{par:Copy Propagation}
+For $x = y$, replace uses of $x$ with $y$. Apply transitvely.
+% paragraph Copy Propagation (end)
+
+\paragraph{Common Subexpression Elimination} % (fold)
+\label{par:Common Subexpression Elimination}
+If program computes same expression mulitple times, we can reuse the computed value.
+% paragraph Common Subexpression Elimination (end)
+
+\paragraph{Ureachable Code elimination} % (fold)
+\label{par:Ureachable Code elimination}
+Eliminate code that is never used (loop condition always false or if-statement always true/false.
+% paragraph Ureachable Code elimination (end)
+
+\paragraph{Dead Code Elimination} % (fold)
+\label{par:Dead Code Elimination}
+Remove statements that define variables that are never used. Other optimizations might create those
+% paragraph Dead Code Elimination (end)
+
+\subsubsection{Loop Optimization} % (fold)
+\label{ssub:Loop Optimization}
+Most time (90/10) spent in loop.
+
+\paragraph{Loop-Invariant Code motion} % (fold)
+\label{par:Loop-Invariant Code motion}
+Hoist computation that does not change during the loop out. Must be safe!
+% paragraph Loop-Invariant Code motion (end)
+
+\paragraph{Strength Reduction} % (fold)
+\label{par:Strength Reduction}
+Replaces expensive operations by cheap ones. \emph{Induction variable} is a loop variable whose value depend linearly on the itarion number. Apply strength reduction here. Also ohter strength reduction ($x*2 = x+x$, $i * 2^c = i << c$).
+% paragraph Strength Reduction (end)
+
+\paragraph{Induction Variable Elimination} % (fold)
+\label{par:Induction Variable Elimination}
+If there are multiple induction variables in the loop, eliminate the ones that are only used in the test. Will need to rewrite test.
+% paragraph Induction Variable Elimination (end)
+
+\paragraph{Loop Unrolling} % (fold)
+\label{par:Loop Unrolling}
+Execute loop body multiple times at each iteration, get rid of conditional branches. Space-time tradeoff: program size increases.
+% paragraph Loop Unrolling (end)
+
+\paragraph{Funciton Inlining} % (fold)
+\label{par:Funciton Inlining}
+Replace function call with the body of the function. Not applicable for recursive procedures, and hard to inline methods.
+% paragraph Funciton Inlining (end)
+
+\paragraph{Function cloning} % (fold)
+\label{par:Function cloning}
+Create specialized verions of fuctions that are called from different call sites with different arguments.
+% paragraph Function cloning (end)
+
+% subsubsection Loop Optimization (end)
+
+% subsection Lecture 23: Introduction to Optimizations (end)
+
+\subsection{Lecture 33: Register Allocation} % (fold)
+\label{sub:Lecture 33: Register Allocation}
+Low IR manipulate data in local/temp variables, assembly in memory/registers. The compiler backend must allocate variables to memory or registers in the generated code.\\
+\\
+\emph{Register allocation}: Keep variable in registers as long as possible, ideally as long as the lifetime of the variable (never need to store it to memory). Main idea: \emph{cannot allocate two variables to the same register if they are both live at some program point}. Algorithm:
+\begin{enumerate}
+	\item Perform live variable analysis (over abstract assembly code)
+	\item Get live variables in each program point
+	\item Variables in the same set can't be allocated in the same register, they interfere.
+	\item If they dont interfere, they can have the same register.
+\end{enumerate}
+Draw interferences in a graph. Same algorithm as in section \ref{ssub:Register Allocation By Graph Coloring}. Add nodes back one by one and assign colors (registers). \\
+\\
+If you have a graph left, it might be colorable (but NP hard). \emph{Optimistic Coloring} is to try to color the spilled node. If not possible, you get \emph{actual spill}.
+
+\subsubsection{Accessing Spilled Variables} % (fold)
+\label{ssub:Accessing Spilled Variables}
+\begin{itemize}
+	\item \emph{Simple}: Reserve extra registers for shuttling data
+	\item \emph{Better}: Rewrite code introducing a new temporary and rerun liveness analysis and register allocation.
+\end{itemize}
+Example: assume:
+\begin{lstlisting}
+	add r1, r1, r2
+\end{lstlisting}
+If $r2$ assigned for spilling, rewrite to:
+\begin{lstlisting}
+	ldr t1, [fp, #-8]
+	add r1, r1, t1
+\end{lstlisting}
+$t1$ has very short lifetime. Rerun algorithm.
+% subsubsection Accessing Spilled v (end)
+
+\subsubsection{Optimizing Move Instructions} % (fold)
+\label{ssub:Optimizing Move Instructions}
+You can get rid of move instruction
+\begin{lstlisting}
+	mov t5, t9
+\end{lstlisting}
+if $t5$ and $t9$ are not connected in the interference graph. Assign them to the same register. This might make a graph uncolorable. \emph{Conservative Coalescing}: Ensure that coalescing doesn't make the graph non-colorable.
+% subsubsection Optimizing Move Instructions (end)
+
+% subsection Lecture 33: Register Allocation (end)
+% section Cornell Slides (end)
