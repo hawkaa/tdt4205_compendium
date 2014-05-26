@@ -244,6 +244,53 @@ LR-parsers are table driven. Attractive because:
 Typical drawback is that it is too much work to construct an LR parser by hand for a typical language grammar.
 % subsubsection Why LR Parsers? (end)
 
+\subsubsection{Items and the LR(0) automaton} % (fold)
+\label{ssub:Items and the LR(0) automaton}
+An LR parser makes shift-reduce decisions by maintaining states to keep track of where we are in a parse, states we call \emph{LR(0)items}. Like:
+\begin{equation}
+\begin{split}
+	A \to .XY\\
+	A \to X.Y\\
+	A \to XY.
+\end{split}
+\end{equation}
+It indicates how much we have seen. One collection of these LR(0) items is called the \emph{canonical LR(0) collection} forms the basis of the \emph{LR(0) automaton}. To create this we define $FIRST$ and $FOLLOW$, and augment the grammar with a new start symbol $S'$ and a production $S \to S$.
+
+\paragraph{$CLOSURE(I)$} % (fold)
+\label{par:$CLOSURE(I)$}
+\begin{enumerate}
+	\item Add all items in I to $CLOSURE(I)$
+	\item If $A \to \alpha .B \beta$ is in $CLOSURE(I)$ and $B \to \gamma$ is a production, then add item $B \to . \gamma$ to $CLOSURE(I)$. Rinse repeat.
+\end{enumerate}
+You can devide between kernel and nonkernel items, where the latter is everything but the start symbol that has a dot to the left.
+% paragraph $CLOSURE(I)$ (end)
+
+\paragraph{$GOTO(I,X)$} % (fold)
+\label{par:$GOTO(I,X)$}
+Is defined to be the closure of the set of all items $[A \to \alpha X.\beta]$ such that $[A \to \alpha .X\beta]$ is in $I$
+% paragraph $GOTO(I,X)$ (end)
+
+\paragraph{Use of the LR(0) Automaton} % (fold)
+\label{par:Use of the LR(0) Automaton}
+The central idea behind "Simple LR", or SLR, parsing is the construction from the grammar of the LR(0) automaton. Shift reduce decisions can be made: If automata has transition, shift. If it does not, reduce. There will always only be one applicable reduction.
+% paragraph Use of the LR(0) Automaton (end)
+
+% subsubsection Items and the LR(0) automaton (end)
+
+\subsubsection{The LR-Parsing Algorithm} % (fold)
+\label{ssub:The LR-Parsing Algorithm}
+The driver program is the same for all LR parsers; only the parsing table changes from one parser to another. The LR parser shifts state when the parser reduces a symbol.
+
+\paragraph{Structure of the LR Parsing Table} % (fold)
+\label{par:Structure of the LR Parsing Table}
+Two parts:
+\begin{enumerate}
+	\item The $ACTION$ function takes $I$ and terminal $a$ which can shift, reduce, accept or error.
+	\item The $GOTO[I_i,A] = I_j$ is expanded to states. A is a nonterminal.
+\end{enumerate}
+% paragraph Structure of the LR Parsing Table (end)
+% subsubsection The LR-Parsing Algorithm (end)
+
 \subsubsection{Viable Prefixes} % (fold)
 \label{ssub:Viable Prefixes}
 Why can LR(0) automata be used to make shift-reduce decisions? Not all prefixes of right-sentential forms can appear on the stack. The parser must make sure to reduce before putting another symbol on stack (in some occasions). The prefixes of right sentinental forms that can appear on the stack of a shift-reduce parser are called \emph{viable prefixes}. They are defined as follows: A viable prefix is a prifx of a right-sentential form that does not contisue past the right end of the rightmost handle of that sentential form. SLR parsing is pased on the fact that the LR(0) automata recognize viable prefixes.
