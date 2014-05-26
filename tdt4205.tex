@@ -289,11 +289,31 @@ Two parts:
 	\item The $GOTO[I_i,A] = I_j$ is expanded to states. A is a nonterminal.
 \end{enumerate}
 % paragraph Structure of the LR Parsing Table (end)
+
+\paragraph{Behaviour of the LR Parser} % (fold)
+\label{par:Behaviour of the LR Parser}
+The next move of the parser from the configuration is determined by reading $a_i$, the current input symbol, and $s_m$, the state on top of the stack and lookup $ACTION[s_m, a_i]$
+\begin{enumerate}
+	\item If $ACTION$ is shift, pop input off the stack and go to the state in action.
+	\item If $ACTION$ is reduce $A \to \beta$, pop the length of $\beta$~ off the stack, then perform $GOTO[S_{m-r},A]$.
+\end{enumerate}
+Accept and error might also happen.
+% paragraph Behaviour of the LR Parser (end)
+
 % subsubsection The LR-Parsing Algorithm (end)
+
+\subsubsection{Constructing SLR-Parsing Tables} % (fold)
+\label{ssub:Constructing SLR-Parsing Tables}
+Begins with the LR(0) automaton. After constructed:
+\begin{enumerate}
+	\item If $[A \to \alpha .a\beta]$ with $GOTO = I_j$, set action to "shift j". $a$ must be terminal.
+	\item If $[A \to \alpha .]$ is in $I_i$, then set $ACTION[i,a]$ to "reduce $A \to \alpha$" for all $a$ in $FOLLOW(A)$. If A is $S'$, set accept instead.
+\end{enumerate}
+% subsubsection Constructing SLR-Parsing Tables (end)
 
 \subsubsection{Viable Prefixes} % (fold)
 \label{ssub:Viable Prefixes}
-Why can LR(0) automata be used to make shift-reduce decisions? Not all prefixes of right-sentential forms can appear on the stack. The parser must make sure to reduce before putting another symbol on stack (in some occasions). The prefixes of right sentinental forms that can appear on the stack of a shift-reduce parser are called \emph{viable prefixes}. They are defined as follows: A viable prefix is a prifx of a right-sentential form that does not contisue past the right end of the rightmost handle of that sentential form. SLR parsing is pased on the fact that the LR(0) automata recognize viable prefixes.
+Why can LR(0) automata be used to make shift-reduce decisions? Not all prefixes of right-sentential forms can appear on the stack. The parser must make sure to reduce before putting another symbol on stack (in some occasions). The prefixes of right sentinental forms that can appear on the stack of a shift-reduce parser are called \emph{viable prefixes}. They are defined as follows: A viable prefix is a prifx of a right-sentential form that does not continue past the right end of the rightmost handle of that sentential form. SLR parsing is pased on the fact that the LR(0) automata recognize viable prefixes.
 % subsubsection Viable Prefixes (end)
 
 % subsection Introduction to LR Parsing: Simple LR (end)
@@ -305,6 +325,12 @@ This section extends SLR by utilizing lookahead symbols. Two models:
 	\item The \emph{canonical-LR} or just \emph{LR} method, which makes full use of lookahead. This method uses a large set of items (LR(1) items)
 	\item The \emph{Lookahead-LR} or LALR, based on LR(0) items. It introduces lookaheads into the LR(0) itemns, and thereby handle more grammars, but keeping the table no bigger than the SLR method.
 \end{enumerate}
+
+\subsubsection{Constructing LALR Parsing Tables} % (fold)
+\label{ssub:Constructing LALR Parsing Tables}
+\emph{lookahead-LR}. The SLR and LALR tables for a grammar always have the same number of states. 
+% subsubsection Constructing LALR Parsing Tables (end)
+
 % subsection More Powerful LR Parsers (end)
 
 \subsection{Using Ambigous Grammars} % (fold)
@@ -353,6 +379,54 @@ These rules might not be what the compiler writer wants, so we can chose associa
 
 \section{Syntax-Directed Translation} % (fold)
 \label{sec:Syntax-Directed Translation}
+This section develops translation guided by contex-free grammars. We associate information with a language construct by attaching \emph{attributes} to the grammar symbols. A syntax-directed definition specifies the values of attributes by associating semantic rules with the grammar productions. The most general approach to syntax-directed translation is to construct a parse tree or a syntax tree, and the n to compute the values of attributes at the nodes of the tree by visiting the nodes of the tree.
+
+\subsection{Syntax-Directed Definitions} % (fold)
+\label{sub:Syntax-Directed Definitions}
+A \emph{syntax-directed definition (SDD)} is a context-free grammar together with attributes and rules.
+
+\subsubsection{Inherited and Synthesized Attributes} % (fold)
+\label{ssub:Inherited and Synthesized Attributes}
+Two kinds of attributes for non-terminals:
+\begin{enumerate}
+	\item A \emph{Synthezised attribute}. An attribute at node $N$ that is defined only in terms of attribute values at the children of $N$ and at $N$ itself.
+	\item An \emph{inherited attribute} at node $N$ is defined only in terms of attribute values at $N$'s parent, $N$ itself and $N$'s siblings.
+\end{enumerate}
+An SDD that involves only synthesized attributes is called \emph{S-attributed}. Head is computed from the body of the production.
+% subsubsection Inherited and Synthesized Attributes (end)
+
+\subsubsection{Evaluating an SDD at the Nodes of a Parse Tree} % (fold)
+\label{ssub:Evaluating an SDD at the Nodes of a Parse Tree}
+We may visit the nodes in any bottom-up order. We may use an annotated parse tree for this.
+% subsubsection Evaluating an SDD at the Nodes of a Parse Tree (end)
+
+% subsection Syntax-Directed Definitions (end)
+
+\subsection{Evaluation Orders for SDD's} % (fold)
+\label{sub:Evaluation Orders for SDD's}
+"Dependency graphs" are a useful tool for determining an evaluation order for the attribute instances in a given parse tree. We introduce \emph{S-attributed} and \emph{L-attributed} SDD's
+
+\subsubsection{Dependency Graphs} % (fold)
+\label{ssub:Dependency Graphs}
+A \emph{dependency graph} depicts the flow of information among the attribute instances in a particular parse tree. An endge from one attribute to another means that the value of the first is needed to compute the second.
+% subsubsection Dependency Graphs (end)
+
+\subsubsection{Ordering the Evaluation of Attributes} % (fold)
+\label{ssub:Ordering the Evaluation of Attributes}
+You may sort the dependency graph topologically. If cycles exist, there is no way to evaluate the SDD.
+% subsubsection Ordering the Evaluation of Attributes (end)
+
+\subsubsection{S-Attributed Definitions} % (fold)
+\label{ssub:S-Attributed Definitions}
+We need to guarantee that there is an evaluation order. \emph{An SDD is S-attributed if every attribute is synthesized}. Can be implemented buring bottom-up parsing, since it corresponds to a postorder traversal.
+% subsubsection S-Attributed Definitions (end)
+
+\subsubsection{L-Attributed Definitions} % (fold)
+\label{ssub:L-Attributed Definitions}
+Another way to guarantee evaluation order is to let only the dependency graph have edges that can go from left to right. 
+% subsubsection L-Attributed Definitions (end)
+
+% subsection Evaluation Orders for SDD's (end)
 
 % section Syntax-Directed Translation (end)
 
